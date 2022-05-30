@@ -92,13 +92,18 @@ Object oWebApp is a cWebApp
                 Set psCaption to C_$View
 
                 Object oVwXSSItem1 is a cWebMenuItemLoadView
-                    Set psCaption to "VwXSS"
+                    Set psCaption to "XSS"
                     Set psLoadViewOnClick to "oVwXSS"
                 End_Object
 
                 Object oVwSqlInjectionItem1 is a cWebMenuItemLoadView
-                    Set psCaption to "VwSqlInjection"
+                    Set psCaption to "SQL Injection"
                     Set psLoadViewOnClick to "oVwSqlInjection"
+                End_Object
+
+                Object oHiddenElementsItem1 is a cWebMenuItemLoadView
+                    Set psCaption to "Hidden Elements"
+                    Set psLoadViewOnClick to "oVwHiddenElements"
                 End_Object
             End_Object  
         End_Object  
@@ -145,6 +150,7 @@ Object oWebApp is a cWebApp
     Use WebResourceManager.wo
     Use VwXSS.wo
     Use VwSqlInjection.wo
+    Use VwHiddenElements.wo
     
 End_Object
 
