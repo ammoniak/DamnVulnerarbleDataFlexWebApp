@@ -1,0 +1,5 @@
+#REPLACE FILE1 Customer
+#REPLACE Customer.File_Number |CI1
+#REPLACE Customer.CustomerID |FN1,1
+#REPLACE Customer.Name |FS1,2
+#REPLACE Customer.Email |FS1,3

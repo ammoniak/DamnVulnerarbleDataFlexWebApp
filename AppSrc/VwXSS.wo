@@ -1,0 +1,69 @@
+﻿Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebButton.pkg
+Use cWebForm.pkg
+Use cWebLabel.pkg
+Use cWebHtmlBox.pkg
+Use cWebHtmlList.pkg
+Use cWebColumn.pkg
+
+Object oVwXSS is a cWebView
+    Set phoDefaultView to Self
+
+    Set piWidth to 700
+    Set psCaption to "XSS"
+    
+    // Your DDO structure will go here
+
+
+    Object oWebMainPanel is a cWebPanel
+        Set piColumnCount to 6
+
+        Object oForm1 is a cWebForm
+            Set psLabel to "Name"
+            Set piColumnSpan to 5
+        End_Object
+
+        Object oButtonSample is a cWebButton
+            Set psCaption to "Say Hello"
+            Set piColumnIndex to 5
+
+            Procedure OnClick
+                Forward Send OnClick
+                String sValue
+                WebGet psValue of oForm1 to sValue
+                tWebRow tRow
+                Move sValue to tRow.sRowId
+                Move sValue to tRow.aCells[0].sValue
+                Send DataSetAppendRow of oWebHtmlList1 tRow
+                WebSet psHtml of oWebHtmlBox1 to (SFormat("Hello, %1",sValue))
+            End_Procedure
+            
+        End_Object
+
+
+        Object oWebHtmlBox1 is a cWebHtmlBox
+            Set piColumnSpan to 0
+            Set psHtml to "HTML Box"
+        End_Object
+
+        Object oWebHtmlList1 is a cWebHtmlList
+            Set psHtmlBefore to '<table>'
+            Set psHtmlTemplate to '<td><td>{{oWebColumn1}}</td></tr>'
+            Set psHtmlAfter to '</table>'
+            Set pbDataAware to False
+            Set pbShowLabel to True
+            Set psLabel to "History"
+
+            Object oWebColumn1 is a cWebColumn
+                Set psCaption to "column"
+                Set piWidth to 50
+            End_Object
+        End_Object
+        
+
+    End_Object 
+
+
+
+End_Object

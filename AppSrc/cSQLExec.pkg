@@ -1,0 +1,172 @@
+﻿Use sql.pkg 
+
+Declare_Datafile WebAppUser
+
+Global_Variable Handle ghoSql
+
+Define cCrLf for (Character(13) + Character(10))
+
+Class cSqlExec is a cObject
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Property Handle phoSqlMgr // SQL Handle Manager
+        Property Handle phoDbc // Database connection
+        Property String psScript
+        Property String[] psaColumnNames
+        
+        Open WebAppUser
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Handle hoSqlMgr hoDbc
+        Forward Send End_Construct_Object
+        Get Create (RefClass(cSQLHandleManager)) to hoSqlMgr
+        Set phoSqlMgr to hoSqlMgr
+        Get SQLFileConnect of hoSqlMgr WebAppUser.File_Number to hoDbc
+        Set phoDbc to hoDbc
+    End_Procedure
+    
+    Function DFDateToSQLDate Date dDFDate Integer iSQLType Returns String
+        Handle hoDbc hoStmt
+        String sRetVal
+        Integer iType
+        
+        Move SQL_TYPE_TIMESTAMP to iType
+        If (num_arguments > 1) Move iSQLType to iType
+        
+        Get phoDbc to hoDbc
+        Get SQLOpen of hoDbc to hoStmt // Create and execute the statement
+        Get DFDateToSQLDate of hoStmt dDFDate iType to sRetVal
+        Send SQLClose of hoStmt
+        
+        Function_Return sRetVal
+    End_Function
+    
+    Function SQLDateToDFDate String sSQLDate Returns Date
+        Handle hoDbc hoStmt
+        Date dRetVal
+        
+        Get phoDbc to hoDbc
+        Get SQLOpen of hoDbc to hoStmt // Create and execute the statement
+        Get SQLDateToDFDate of hoStmt sSQLDate to dRetVal
+        Send SQLClose of hoStmt
+        
+        Function_Return dRetVal
+    End_Function    
+
+    Function ExecuteSql String sSql Returns String[][]
+        Handle hoSql hoDbc hoStmt
+        String[][] asResult
+        String[] aColumnNames
+        String sValue
+        Integer iResult iCol iColCount iRow
+
+        Get phoSqlMgr to hoSql
+        Get phoDbc to hoDbc
+
+        Get SQLOpen of hoDbc to hoStmt // Create and execute the statement
+        Send SQLExecDirect of hoStmt sSql
+        
+        Repeat
+            Get SQLStmtAttribute of hoStmt SQLSTMTATTRIB_COLUMNCOUNT to iColCount
+            Get SQLFetch of hoStmt to iResult
+            While (iResult <> 0)
+                For iCol from 1 to iColCount
+                    Get SQLColAttribute of hoStmt iCol SQLCOLATTRIB_LABEL to aColumnNames[iCol-1]
+                    Get SQLColumnValue of hoStmt iCol to sValue
+                    Move sValue to asResult[iRow][icol - 1]
+                Loop
+                Increment iRow
+                Get SQLFetch of hoStmt to iResult
+            Loop
+            Get SQLNextResultSet of hoStmt to iResult
+        Until (iResult = 0) // No more result sets
+        Send SQLClose of hoStmt
+        
+        Set psaColumnNames to aColumnNames
+        
+        Function_Return asResult
+    End_Function
+
+    Procedure ExecuteSql String sSql 
+        Handle hoSql hoDbc hoStmt
+
+        Get phoSqlMgr to hoSql
+        Get phoDbc to hoDbc
+
+        Get SQLOpen of hoDbc to hoStmt // Create and execute the statement
+        Send SQLExecDirect of hoStmt sSql
+        Send SQLClose of hoStmt
+    End_Procedure
+
+End_Class
+
+Object oSqlExec is a cSqlExec
+    Move Self to ghoSql
+End_Object
+
+Procedure StartSqlScript Global
+    Set psScript of oSqlExec to ""
+End_Procedure
+
+Procedure AddSqlScript Global String sText
+    Set psScript of oSqlExec to (psScript(oSqlExec) + sText + cCrLf)
+End_Procedure
+
+Function EndSqlScript Global Returns String
+    Function_Return (psScript(oSqlExec))
+End_Function
+
+Function SqlString Global String sValue Returns String
+    Function_Return ("'" + sValue + "'")
+End_Function
+
+Function SqlArray Global String sValue String sDelimeter Returns String
+    Move (Replaces(sDelimeter, sValue, "','")) to sValue
+    Function_Return ("('" + sValue + "')")
+End_Function
+
+Function PadL Global String sSource Integer iNumChars String sCharacter Returns String
+    String sResult
+    Move (Pad(" ", iNumChars)) to sResult
+    Move (Replaces(" ", sResult, sCharacter)) to sResult
+    Move (Right(sResult + sSource, iNumChars)) to sResult
+    Function_Return sResult
+End_Function
+
+Function DFDateTimeToSql Global DateTime dtDateTime Returns String
+    String sResult
+    Integer iDay iMonth iYear iHour iMinute iSecond iMillisecond
+    
+    Move (DateGetDay(dtDateTime))       to iDay
+    Move (DateGetMonth(dtDateTime))     to iMonth
+    Move (DateGetYear(dtDateTime))      to iYear
+    Move (DateGetHour(dtDateTime))      to iHour
+    Move (DateGetMinute(dtDateTime))    to iMinute
+    Move (DateGetSecond(dtDateTime))    to iSecond
+    
+    Move (PadL(iMonth, 2, "0") + "-" + PadL(iDay, 2, "0") + "-" + PadL(iYear, 4, "0")) to sResult
+    Move (sResult * PadL(iHour, 2, "0") + ":" + PadL(iMinute, 2, "0") + ":" + PadL(iSecond, 2, "0")) to sResult
+    Function_Return (SqlString(sResult))
+End_Function
+
+Function SQLNumberToDF Global String sSQLNumber Returns Number
+    Integer iDecSep
+    Get_Attribute DF_DECIMAL_SEPARATOR to iDecSep
+    Move (Replace(".", sSQLNumber, Character(iDecSep))) to sSQLNumber
+    Function_Return sSQLNumber
+End_Function
+
+Function DFNumberToSQL Global Number nDFNumber Returns String
+    Integer iDecSep iThouSep
+    String sResult
+    
+    Get_Attribute DF_DECIMAL_SEPARATOR to iDecSep
+    Get_Attribute DF_THOUSANDS_SEPARATOR to iThouSep
+
+    Move nDFNumber to sResult
+    Move (Replace(Character(iThouSep), sResult, ""))  to sResult
+    Move (Replace(Character(iDecSep),  sResult, ".")) to sResult
+    Function_Return sResult
+End_Function

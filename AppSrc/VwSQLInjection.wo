@@ -1,0 +1,73 @@
+﻿Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebForm.pkg 
+Use cWebButton.pkg
+Use cWebList.pkg
+Use cWebColumn.pkg
+Use cSQLExec.pkg
+
+Object oVwSqlInjection is a cWebView
+    Set piWidth to 800
+    Set psCaption to "SQL Injection"
+
+    // Your DDO structure will go here
+
+    Object oWebMainPanel is a cWebPanel
+        Set piColumnCount to 12
+        
+        // place controls here
+        // Your view will grow as controls are added
+        
+        Object oForm is a cWebForm
+            Set piColumnSpan to 11
+            Set psLabel to "Name"
+        End_Object
+
+        Object oWebButton2 is a cWebButton
+            Set psCaption to "Example"
+            Set piColumnIndex to 11
+        
+            Procedure OnClick
+                WebSet psValue of oForm to "Raphael' UNION Select Rights,LoginName,Password From WebAppUser --"
+            End_Procedure
+        End_Object
+
+        Object oWebButton1 is a cWebButton
+            Set piColumnSpan to 12
+            Set psCaption to "Search"
+        
+            Procedure OnClick
+                String sName
+                String[][] saResults
+                tWebRow tRow
+                Integer i
+                WebGet psValue of oForm to sName
+                Get ExecuteSql of ghoSql (SFormat("Select CustomerID,Name,Email from Customer where Name='%1'",sName)) to saResults
+                Send ClearGrid of oWebList1
+                For i from 0 to (SizeOfArray(saResults)-1)
+                    Move saResults[i][0] to tRow.sRowId
+                    Move saResults[i][1] to tRow.aCells[0].sValue
+                    Move saResults[i][2] to tRow.aCells[1].sValue
+                    Send DataSetAppendRow of oWebList1 tRow
+                Loop
+            End_Procedure
+        End_Object
+
+        Object oWebList1 is a cWebList
+            Set pbShowLabel to True
+            Set psLabel to "Results"
+            Set peLabelPosition to lpTop
+            Set pbDataAware to False
+            Object oWebColumn1 is a cWebColumn
+                Set psCaption to "Name"
+                Set piWidth to 50
+            End_Object
+            Object oWebColumn2 is a cWebColumn
+                Set psCaption to "Email"
+                Set piWidth to 50
+            End_Object
+        End_Object
+        
+    End_Object 
+
+End_Object
