@@ -1,0 +1,99 @@
+﻿Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebForm.pkg 
+Use cCustomerDataDictionary.dd
+Use cWebButton.pkg
+Use cWebLabel.pkg
+
+Object oVwHiddenGems is a cWebView
+    Object oCustomer_DD is a cCustomerDataDictionary
+        Procedure OnSaveRecord
+            Forward Send OnSaveRecord
+            Move (CurrentDateTime()) to Customer.LastUpdate
+        End_Procedure
+    End_Object
+
+    Set Main_DD to oCustomer_DD
+    Set Server to oCustomer_DD
+
+    Set piWidth to 700
+    Set psCaption to "Hidden Gems"
+    Set pbClearAfterSave to False
+
+    // Your DDO structure will go here
+
+    Object oWebMainPanel is a cWebPanel
+        Set piColumnCount to 12
+
+        Object oCustomer_CustomerID is a cWebForm
+            Entry_Item Customer.CustomerID
+            Set piColumnSpan to 0
+            Set psLabel to "CustomerID:"
+            Set pbRender to False
+        End_Object
+
+        Object oCustomer_Name is a cWebForm
+            Entry_Item Customer.Name
+            Set piColumnSpan to 6
+            Set psLabel to "Name:"
+        End_Object
+
+        Object oCustomer_LastUpdate is a cWebForm
+            Entry_Item Customer.LastUpdate
+            Set piColumnSpan to 6
+            Set psLabel to "LastUpdate:"
+            Set piColumnIndex to 6
+            Set pbEnabled to False
+        End_Object
+
+        Object oCustomer_Email is a cWebForm
+            Entry_Item Customer.Email
+            Set piColumnSpan to 6
+            Set psLabel to "Email:"
+        End_Object
+
+        Object oCustomer_LastMailSent is a cWebForm
+            Entry_Item Customer.LastMailSent
+            Set piColumnSpan to 6
+            Set psLabel to "LastMailSent:"
+            Set piColumnIndex to 6
+            Set pbEnabled to False
+
+            Procedure AllowUpdateDD Boolean  ByRef bAllow
+                Forward Send AllowUpdateDD (&bAllow)
+                Move True to bAllow
+            End_Procedure
+        End_Object
+
+        Object oWebButton1 is a cWebButton
+            Set piColumnSpan to 0
+            Set psCaption to "Send Mail"
+        
+            Procedure OnClick
+                Set File_Field_Changed_Value of oCustomer_DD File_Field Customer.LastMailSent to (CurrentDateTime())
+                Set File_Field_Changed_Value of oCustomer_DD File_Field Customer.Note to "Mail sent!"
+                Send Request_Save
+            End_Procedure
+        End_Object
+
+        Object oCustomer_Note is a cWebForm
+            Entry_Item Customer.Note
+            Set piColumnSpan to 0
+            Set psLabel to "Note:"
+            Set pbEnabled to False
+        End_Object
+
+        Object oWebLabel1 is a cWebLabel
+            Set psCaption to @"LastUpdate is updated in the OnSaveRecord event of the DataDictionary\n\r
+LastMailSent is updated in the OnClick event of the button and has 'AllowUpdateDD' always returning true\n\r
+Note is updated in the onClick event as well, but AllowUpdateDD is on it's default setting."
+            Set piColumnSpan to 12
+        End_Object
+        
+        // place controls here
+        // Your view will grow as controls are added
+        
+        
+    End_Object 
+
+End_Object

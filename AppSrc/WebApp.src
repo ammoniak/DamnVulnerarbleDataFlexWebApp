@@ -101,9 +101,9 @@ Object oWebApp is a cWebApp
                     Set psLoadViewOnClick to "oVwSqlInjection"
                 End_Object
 
-                Object oHiddenElementsItem1 is a cWebMenuItemLoadView
-                    Set psCaption to "Hidden Elements"
-                    Set psLoadViewOnClick to "oVwHiddenElements"
+                Object oHiddenGemsItem1 is a cWebMenuItemLoadView
+                    Set psCaption to "Hidden Gems"
+                    Set psLoadViewOnClick to "oVwHiddenGems"
                 End_Object
             End_Object  
         End_Object  
@@ -150,7 +150,7 @@ Object oWebApp is a cWebApp
     Use WebResourceManager.wo
     Use VwXSS.wo
     Use VwSqlInjection.wo
-    Use VwHiddenElements.wo
+    Use VwHiddenGems.wo
     
 End_Object
 

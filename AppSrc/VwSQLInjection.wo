@@ -19,13 +19,14 @@ Object oVwSqlInjection is a cWebView
         // Your view will grow as controls are added
         
         Object oForm is a cWebForm
-            Set piColumnSpan to 11
-            Set psLabel to "Name"
+            Set piColumnSpan to 10
+            Set psLabel to "Search String"
         End_Object
 
         Object oWebButton2 is a cWebButton
-            Set psCaption to "Example"
-            Set piColumnIndex to 11
+            Set psCaption to "Show Example"
+            Set piColumnIndex to 10
+            Set piColumnSpan to 2
         
             Procedure OnClick
                 WebSet psValue of oForm to "Raphael' UNION Select Rights,LoginName,Password From WebAppUser --"

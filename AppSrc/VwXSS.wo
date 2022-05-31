@@ -6,6 +6,7 @@ Use cWebLabel.pkg
 Use cWebHtmlBox.pkg
 Use cWebHtmlList.pkg
 Use cWebColumn.pkg
+Use cWebEdit.pkg
 
 Object oVwXSS is a cWebView
     Set phoDefaultView to Self
@@ -21,12 +22,12 @@ Object oVwXSS is a cWebView
 
         Object oForm1 is a cWebForm
             Set psLabel to "Name"
-            Set piColumnSpan to 5
+            Set piColumnSpan to 4
         End_Object
 
         Object oButtonSample is a cWebButton
             Set psCaption to "Say Hello"
-            Set piColumnIndex to 5
+            Set piColumnIndex to 4
 
             Procedure OnClick
                 Forward Send OnClick
@@ -40,16 +41,29 @@ Object oVwXSS is a cWebView
             End_Procedure
             
         End_Object
+        Object oButtonBalloon is a cWebButton
+            Set psCaption to "Show Balloon"
+            Set piColumnIndex to 5
+
+            Procedure OnClick
+                Forward Send OnClick
+                String sValue
+                WebGet psValue of oForm1 to sValue
+                Send ShowInfoBalloon "" sValue
+            End_Procedure
+            
+        End_Object
 
 
         Object oWebHtmlBox1 is a cWebHtmlBox
             Set piColumnSpan to 0
             Set psHtml to "HTML Box"
+            Set pbShowBorder to True
         End_Object
 
         Object oWebHtmlList1 is a cWebHtmlList
             Set psHtmlBefore to '<table>'
-            Set psHtmlTemplate to '<td><td>{{oWebColumn1}}</td></tr>'
+            Set psHtmlTemplate to '<tr><td>{{oWebColumn1}}</td></tr>'
             Set psHtmlAfter to '</table>'
             Set pbDataAware to False
             Set pbShowLabel to True
@@ -59,6 +73,12 @@ Object oVwXSS is a cWebView
                 Set psCaption to "column"
                 Set piWidth to 50
             End_Object
+        End_Object
+
+        Object oWebEdit1 is a cWebEdit
+            Set piColumnSpan to 0
+            Set psLabel to "Example"
+            Set psValue to 'Use this Example in the Form above: ">a<span onmouseover=alert(1)>test</span>b'
         End_Object
         
 
